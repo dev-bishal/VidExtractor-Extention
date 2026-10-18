@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Media Extractor",
+  "version": "1.0.0",
+  "description": "Find iframe src URLs, video poster images and video/source src paths on any page, with one-click copy.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Media Extractor (Alt+Shift+E)",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "scripting", "storage", "clipboardWrite"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+E" },
+      "description": "Toggle the Media Extractor panel"
+    }
+  }
+}
