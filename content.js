@@ -14,7 +14,9 @@
     { type: 'iframe', title: 'Iframe src' },
     { type: 'poster', title: 'Video poster' },
     { type: 'video', title: 'Video src / source' },
+    { type: 'og', title: 'og:video meta' },
   ];
+  const OG_VIDEO_KEYS = ['og:video', 'og:video:url', 'og:video:secure_url'];
 
   // ---------------------------------------------------------------- messaging
 
@@ -106,6 +108,18 @@
         add('video', v.currentSrc, ['currentSrc (playing)', size], v);
       }
     }
+
+    // <meta property="og:video" content="…"> (some sites use name= instead).
+    const ogContent = (key) =>
+      document.querySelector(`meta[property="${key}" i], meta[name="${key}" i]`)?.getAttribute('content') || '';
+    const ogType = ogContent('og:video:type');
+    const ogW = ogContent('og:video:width');
+    const ogH = ogContent('og:video:height');
+    for (const m of document.querySelectorAll('meta[property^="og:video" i], meta[name^="og:video" i]')) {
+      const key = (m.getAttribute('property') || m.getAttribute('name') || '').toLowerCase();
+      if (!OG_VIDEO_KEYS.includes(key)) continue;
+      add('og', m.getAttribute('content'), [key, ogType, ogW && ogH ? `${ogW}×${ogH}` : ''], null);
+    }
     return items;
   }
 
@@ -127,7 +141,7 @@
           subtree: true,
           childList: true,
           attributes: true,
-          attributeFilter: ['src', 'poster', 'data-src', 'data-poster', 'data-lazy-src'],
+          attributeFilter: ['src', 'poster', 'data-src', 'data-poster', 'data-lazy-src', 'content'],
         });
         for (const e of mediaEvents) document.addEventListener(e, schedule, true);
       },
@@ -184,7 +198,7 @@
     .panel {
       --bg: #0f1218; --bg2: #171b23; --bg3: #1f2530; --line: #2a3140;
       --fg: #e7ebf2; --fg2: #9aa4b5; --accent: #4f8cff; --accent-fg: #fff;
-      --ok: #22c55e; --iframe: #a78bfa; --poster: #f59e0b; --video: #38bdf8;
+      --ok: #22c55e; --iframe: #a78bfa; --poster: #f59e0b; --video: #38bdf8; --og: #f472b6;
       position: fixed; z-index: 2147483647; display: flex; flex-direction: column;
       background: var(--bg); color: var(--fg); border: 1px solid var(--line);
       font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -195,7 +209,7 @@
       .panel {
         --bg: #ffffff; --bg2: #f5f7fa; --bg3: #eaeef4; --line: #d9dfe8;
         --fg: #141922; --fg2: #5b6576; --accent: #2563eb;
-        --iframe: #7c3aed; --poster: #d97706; --video: #0284c7;
+        --iframe: #7c3aed; --poster: #d97706; --video: #0284c7; --og: #db2777;
         box-shadow: 0 12px 40px rgba(15,23,42,.18);
       }
     }
@@ -232,8 +246,8 @@
     .btn.ok { background: var(--ok); }
 
     .body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 0 8px; }
-    .panel.top .body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: hidden; padding: 0; }
-    .panel.top section { overflow-y: auto; border-right: 1px solid var(--line); padding-bottom: 8px; }
+    .panel.top .body { display: grid; grid-template-columns: repeat(4, minmax(300px, 1fr)); overflow: auto hidden; padding: 0; }
+    .panel.top section { overflow: hidden auto; border-right: 1px solid var(--line); padding-bottom: 8px; }
     .panel.top section:last-child { border-right: 0; }
 
     section h3 {
@@ -245,6 +259,7 @@
     section[data-type="iframe"] .dot { background: var(--iframe); }
     section[data-type="poster"] .dot { background: var(--poster); }
     section[data-type="video"]  .dot { background: var(--video); }
+    section[data-type="og"]     .dot { background: var(--og); }
     section h3 .name { flex: 1; }
     section h3 .count { font-variant-numeric: tabular-nums; }
     .sec-copy { all: unset; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--accent); padding: 2px 6px; border-radius: 6px; }

@@ -1,7 +1,7 @@
 # Media Extractor (browser extension)
 
-Lists every **iframe `src`**, **video poster image** and **video `src` / `<source src>`** on the
-current page in a floating panel, each with a copy button.
+Lists every **iframe `src`**, **video poster image**, **video `src` / `<source src>`** and
+**`og:video` meta tag** on the current page in a floating panel, each with a copy button.
 
 ## Install (Chrome / Edge / Brave)
 
@@ -30,6 +30,7 @@ To use it on local `file://` pages, open the extension's **Details** and enable
 | Iframe src | `iframe[src]`, `frame[src]`, lazy `data-src` / `data-lazy-src` / `data-original` / `data-url` |
 | Video poster | `video[poster]`, `data-poster`, `data-poster-url` |
 | Video src / source | `video[src]`, each `<source src type>`, lazy `data-src` attributes, and `currentSrc` (what is actually playing) |
+| og:video meta | `content` of `<meta property="og:video">`, `og:video:url` and `og:video:secure_url` (also `name=` variants), labelled with `og:video:type` and size |
 
 It also looks inside open shadow roots (custom players) and inside **every iframe on the page,
 including cross-origin ones** — items found in a child frame are labelled `in <host>`.
